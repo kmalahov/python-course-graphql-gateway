@@ -17,3 +17,13 @@ class PlaceModel(TimeStampMixin, BaseModel):
     country: Optional[str] = Field(title="ISO Alpha2-код страны")
     city: Optional[str] = Field(title="Название города")
     locality: Optional[str] = Field(title="Местонахождение")
+
+
+class UpdatePlaceModel(TimeStampMixin, BaseModel):
+    """
+    Модель для обновления места.
+    """
+
+    latitude: float = Field(title="Широта")
+    longitude: float = Field(title="Долгота")
+    description: str = Field(title="Описание")

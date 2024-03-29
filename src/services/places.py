@@ -1,7 +1,7 @@
 from typing import Optional
 
 from src.clients.places import PlacesClient
-from src.models.places import PlaceModel
+from src.models.places import PlaceModel, UpdatePlaceModel
 
 
 class PlacesService:
@@ -18,14 +18,18 @@ class PlacesService:
 
         return PlacesClient().get_place(place_id)
 
-    def get_places(self) -> Optional[list[PlaceModel]]:
+    def get_places(
+        self, limit: int, page: int, size: int
+    ) -> Optional[list[PlaceModel]]:
         """
         Получение списка любимых мест.
-
+        :param limit: Ограничение на количество объектов в выборке.
+        :param page: Номер страницы.
+        :param size: Количество элементов на странице.
         :return:
         """
 
-        return PlacesClient().get_list()
+        return PlacesClient().get_list(limit=limit, page=page, size=size)
 
     def create_place(self, place: PlaceModel) -> Optional[PlaceModel]:
         """
@@ -36,6 +40,11 @@ class PlacesService:
         """
 
         return PlacesClient().create_place(place)
+
+    def update_place(
+        self, place_upd: UpdatePlaceModel
+    ) -> Optional[UpdatePlaceModel]:
+        return PlacesClient().update_place(place_upd)
 
     def delete_place(self, place_id: int) -> bool:
         """
