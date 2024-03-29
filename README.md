@@ -56,6 +56,20 @@ query {
 }
 ```
 
+Query example to request a list with pagination of favorite places:
+```graphql
+query {
+  places (limit: 100, page: 1, size: 100){
+    id
+    latitude
+    longitude
+    description
+    city
+    locality
+  }
+}
+```
+
 Query example to request a list of favorite places with countries information: 
 ```graphql
 query {
@@ -131,9 +145,17 @@ mutation {
 }
 ```
 
-Query example to create a favorite place: 
+Query example to update a favorite place: 
 ```graphql
-
+mutation {
+  updatePlace (
+    placeId: 1,
+    latitude: 47.275503,
+    longitude: -122.763093,
+    description: "some description") {
+      result
+    }
+}
 ```
 
 This query will request additional information about related countries in optimal way using data loaders to prevent N + 1 requests problem.

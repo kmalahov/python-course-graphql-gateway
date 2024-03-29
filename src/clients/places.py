@@ -1,9 +1,10 @@
+import json
 from http.client import HTTPException
 from typing import Optional
 from urllib.parse import urlencode, urljoin
 
 from src.clients.base.base import BaseClient
-from src.models.places import PlaceModel
+from src.models.places import PlaceModel, UpdatePlaceModel
 from src.settings import settings
 
 
@@ -33,20 +34,25 @@ class PlacesClient(BaseClient):
 
         return None
 
-    def get_list(self) -> Optional[list[PlaceModel]]:
+    def get_list(self, limit: int, page: int, size: int) -> Optional[list[PlaceModel]]:
         """
         Получение списка любимых мест.
-        TODO: добавить пагинацию.
+        :param limit: Ограничение на количество объектов в выборке.
+        :param page: Номер страницы.
+        :param size: Количество элементов на странице.
         :return:
         """
 
-        endpoint = "/api/v1/places"
-        query_params = {
-            "limit": 20,
+        params = {
+            "limit": limit,
+            "page": page,
+            "size": size,
         }
-        url = urljoin(self.base_url, f"{endpoint}?{urlencode(query_params)}")
+
+        endpoint = "/api/v1/places"
+        url = urljoin(self.base_url, f"{endpoint}?{urlencode(params)}")
         if response := self._request(self.GET, url):
-            return [self.__build_model(place) for place in response.get("data", [])]
+            return [self.__build_model(place) for place in response.get("items", [])]
 
         return None
 
@@ -66,7 +72,7 @@ class PlacesClient(BaseClient):
 
         return None
 
-    def delete_place(self, place_id: int) -> bool:
+    def delete_place(self, place_id: int) -> Optional[PlaceModel]:
         """
         Удаление объекта любимого места по его идентификатору.
 
@@ -83,6 +89,37 @@ class PlacesClient(BaseClient):
             result = False
 
         return result
+
+    def update_place(
+        self, place_id: int, place: UpdatePlaceModel
+    ) -> PlaceModel:
+        """
+        Обновление объекта любимого места по его идентификатору.
+
+        :param place_id: Идентификатор объекта.
+        :param place: Объект любимого места для обновления.
+        :return:
+        """
+
+        endpoint = f"/api/v1/places/{place_id}"
+        url = urljoin(self.base_url, endpoint)
+
+        # Отправка запроса
+        response = self._request(self.PATCH, url, body=place.dict())
+
+        if response:
+            # Извлечение данных из ответа
+            try:
+                place_data = response.get("data")
+            except json.JSONDecodeError:
+                pass
+                # return False, PlaceModel
+
+            # Создание модели из полученных данных
+            return self.__build_model(place_data)
+
+        # return False, None
+        pass
 
     @staticmethod
     def __build_model(data: dict) -> PlaceModel:
